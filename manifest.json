@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Speed Customizer",
+  "version": "1.0.0",
+  "description": "Allows customizing and persisting YouTube video playback speed up to 16x.",
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "*://*.youtube.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.youtube.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

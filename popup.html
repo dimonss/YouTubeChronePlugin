@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Speed Customizer</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <div class="logo-container">
+        <svg class="youtube-logo" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.107C19.522 3.5 12 3.5 12 3.5s-7.522 0-9.388.556a3.002 3.002 0 0 0-2.11 2.107C0 8.029 0 12 0 12s0 3.971.502 5.837a3.003 3.003 0 0 0 2.11 2.107C4.478 20.5 12 20.5 12 20.5s7.522 0 9.388-.556a3.003 3.003 0 0 0 2.11-2.107C24 15.971 24 12 24 12s0-3.971-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+        </svg>
+        <span class="logo-text">Speed Customizer</span>
+      </div>
+      <div class="version">v1.0.0</div>
+    </div>
+
+    <!-- Active YouTube Tab View -->
+    <div id="active-view">
+      <div class="speed-display-container">
+        <div class="speed-label">Playback Speed</div>
+        <div class="speed-value"><span id="speed-num">1.00</span><span class="speed-unit">x</span></div>
+      </div>
+
+      <div class="control-group">
+        <div class="slider-header">
+          <span>Fine Tuning</span>
+          <span id="slider-min-max">0.25x - 5.0x</span>
+        </div>
+        <div class="slider-container">
+          <input type="range" id="speed-slider" min="0.25" max="5.0" step="0.05" value="1.0">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="input-header">
+          <span>Custom Value (0.05 - 16.0)</span>
+        </div>
+        <div class="custom-input-container">
+          <input type="number" id="custom-speed-input" min="0.05" max="16.0" step="0.05" placeholder="3.0">
+          <button id="apply-custom-btn">Apply</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="presets-header">Presets</div>
+        <div class="presets-grid">
+          <button class="preset-btn" data-speed="1.0">1.0x</button>
+          <button class="preset-btn" data-speed="1.25">1.25x</button>
+          <button class="preset-btn" data-speed="1.5">1.5x</button>
+          <button class="preset-btn" data-speed="1.75">1.75x</button>
+          <button class="preset-btn" data-speed="2.0">2.0x</button>
+          <button class="preset-btn" data-speed="2.5">2.5x</button>
+          <button class="preset-btn" data-speed="3.0">3.0x</button>
+          <button class="preset-btn" data-speed="4.0">4.0x</button>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="settings-row">
+        <div class="settings-text">
+          <div class="settings-title">Auto-apply speed</div>
+          <div class="settings-desc">Remember & force speed on new videos</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="auto-apply-toggle" checked>
+          <span class="slider-switch"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Error/Warning view if not on YouTube -->
+    <div id="inactive-view" class="hidden">
+      <div class="warning-container">
+        <div class="warning-icon">⚠️</div>
+        <div class="warning-title">YouTube Not Detected</div>
+        <p class="warning-desc">Open a YouTube video tab to control and adjust playback speed.</p>
+        <a href="https://www.youtube.com" target="_blank" class="youtube-link-btn">Go to YouTube</a>
+      </div>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
