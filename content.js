@@ -1,4 +1,4 @@
-// Keep track of active speed configuration
+// Maintain active speed state
 let targetSpeed = 1.0;
 let autoApply = true;
 
@@ -11,48 +11,39 @@ chrome.storage.local.get(['targetSpeed', 'autoApply'], (result) => {
     autoApply = !!result.autoApply;
   }
   if (autoApply) {
-    applySpeedToAll();
+    applySpeedToVideo();
   }
 });
 
-// Listen for storage changes to sync options in real-time
+// Sync changes in real-time from storage
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === 'local') {
     if (changes.targetSpeed) {
       targetSpeed = parseFloat(changes.targetSpeed.newValue);
-      applySpeedToAll();
+      applySpeedToVideo();
     }
     if (changes.autoApply) {
       autoApply = !!changes.autoApply.newValue;
       if (autoApply) {
-        applySpeedToAll();
+        applySpeedToVideo();
       }
     }
   }
 });
 
-// Set playback speed on a video element safely
-function setVideoSpeed(video, speed) {
-  if (!video || isNaN(speed) || speed <= 0) return;
-  // Only update if there is a noticeable difference to prevent redundant triggers
-  if (Math.abs(video.playbackRate - speed) > 0.01) {
-    try {
-      video.playbackRate = speed;
-    } catch (e) {
-      console.warn('YouTube Speed Customizer: Failed to set playback rate', e);
+// Apply playback speed using document.querySelector('video')
+function applySpeedToVideo() {
+  try {
+    const video = document.querySelector('video');
+    if (video && !isNaN(targetSpeed) && targetSpeed > 0) {
+      video.playbackRate = targetSpeed;
     }
+  } catch (e) {
+    console.error('YouTube Speed Customizer: Error setting video.playbackRate', e);
   }
 }
 
-// Find all video elements on the page and apply the target speed
-function applySpeedToAll() {
-  const videos = document.querySelectorAll('video');
-  videos.forEach(video => {
-    setVideoSpeed(video, targetSpeed);
-  });
-}
-
-// Handle messaging from popup
+// Listen to signals from the extension popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'GET_CURRENT_SPEED') {
     const video = document.querySelector('video');
@@ -65,32 +56,31 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const newSpeed = parseFloat(message.speed);
     if (!isNaN(newSpeed) && newSpeed > 0) {
       targetSpeed = newSpeed;
-      applySpeedToAll();
-      // Also save to storage
+      applySpeedToVideo();
       chrome.storage.local.set({ targetSpeed: newSpeed });
     }
     sendResponse({ success: true, appliedSpeed: targetSpeed });
   }
-  return true; // Keep message channel open for async response
+  return true; // Keep channel open
 });
 
-// Use event delegation in capturing phase to catch events on any video elements (present or future)
+// Re-enforce speed on video events if autoApply is enabled
 document.addEventListener('play', (event) => {
   if (event.target.tagName === 'VIDEO' && autoApply) {
-    setVideoSpeed(event.target, targetSpeed);
+    applySpeedToVideo();
   }
 }, true);
 
 document.addEventListener('ratechange', (event) => {
   if (event.target.tagName === 'VIDEO' && autoApply) {
-    // If the rate was changed externally (e.g., by YouTube resetting it), enforce our speed
-    setVideoSpeed(event.target, targetSpeed);
+    // If YouTube's player UI changes the speed, override it if auto-apply is on
+    applySpeedToVideo();
   }
 }, true);
 
-// A fallback interval to handle complex SPA updates or players that reset playbackRate silently
+// Fast periodic check interval to enforce the playbackRate
 setInterval(() => {
   if (autoApply) {
-    applySpeedToAll();
+    applySpeedToVideo();
   }
-}, 1000);
+}, 500);

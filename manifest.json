@@ -5,7 +5,8 @@
   "description": "Allows customizing and persisting YouTube video playback speed up to 16x.",
   "permissions": [
     "storage",
-    "tabs"
+    "tabs",
+    "scripting"
   ],
   "host_permissions": [
     "*://*.youtube.com/*"

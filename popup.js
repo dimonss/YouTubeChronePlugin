@@ -38,25 +38,43 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Load default saved configs
   let { targetSpeed = 1.0, autoApply = true } = await chrome.storage.local.get(['targetSpeed', 'autoApply']);
   
+  // Helper to ensure content script is injected and active
+  async function syncWithContentScript() {
+    try {
+      const response = await chrome.tabs.sendMessage(activeTab.id, { type: 'GET_CURRENT_SPEED' });
+      return response;
+    } catch (e) {
+      console.log('YouTube Speed Customizer: Content script not responding. Attempting programmatic injection...');
+      try {
+        await chrome.scripting.executeScript({
+          target: { tabId: activeTab.id },
+          files: ['content.js']
+        });
+        // Brief pause to allow content.js to initialize
+        await new Promise(resolve => setTimeout(resolve, 150));
+        const response = await chrome.tabs.sendMessage(activeTab.id, { type: 'GET_CURRENT_SPEED' });
+        return response;
+      } catch (injectError) {
+        console.error('YouTube Speed Customizer: Programmatic injection failed', injectError);
+      }
+    }
+    return null;
+  }
+
   // Initial UI Setup
   updateUI(targetSpeed);
   autoApplyToggle.checked = autoApply;
   
   // Attempt to sync state with the video currently loaded in the page
-  try {
-    const response = await chrome.tabs.sendMessage(activeTab.id, { type: 'GET_CURRENT_SPEED' });
-    if (response) {
-      const actualSpeed = response.currentSpeed !== null ? response.currentSpeed : response.targetSpeed;
-      updateUI(actualSpeed);
-      autoApplyToggle.checked = !!response.autoApply;
-      // Sync local storage state
-      chrome.storage.local.set({ 
-        targetSpeed: actualSpeed,
-        autoApply: !!response.autoApply
-      });
-    }
-  } catch (e) {
-    console.log('YouTube Speed Customizer: Content script is not active or video is not loaded yet. Using storage cache.', e);
+  const response = await syncWithContentScript();
+  if (response) {
+    const actualSpeed = response.currentSpeed !== null ? response.currentSpeed : response.targetSpeed;
+    updateUI(actualSpeed);
+    autoApplyToggle.checked = !!response.autoApply;
+    chrome.storage.local.set({ 
+      targetSpeed: actualSpeed,
+      autoApply: !!response.autoApply
+    });
   }
   
   // Update all elements in the popup layout based on speed selection
@@ -103,7 +121,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       await chrome.tabs.sendMessage(activeTab.id, { type: 'SET_SPEED', speed: speed });
     } catch (e) {
-      console.log('YouTube Speed Customizer: Active tab content script communication failed.', e);
+      console.log('YouTube Speed Customizer: Message failed. Attempting re-injection...');
+      const response = await syncWithContentScript();
+      if (response) {
+        try {
+          await chrome.tabs.sendMessage(activeTab.id, { type: 'SET_SPEED', speed: speed });
+        } catch (retryError) {
+          console.error('YouTube Speed Customizer: Retry message failed', retryError);
+        }
+      }
     }
   }
   
