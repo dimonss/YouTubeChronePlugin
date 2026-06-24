@@ -16,11 +16,11 @@ A Manifest V3 Chrome Extension designed to adjust and persist video playback spe
 * **Premium Design:** Modern dark-themed user interface with sleek glassmorphism effects and micro-animations.
 
 ### Installation (Local Dev)
-1. Download or clone this repository to your computer.
-2. Open Google Chrome and go to `chrome://extensions/`
-3. Toggle **Developer mode** on in the top-right corner.
-4. Click the **Load unpacked** button in the top-left corner.
-5. Select the project directory.
+1. Clone or download this repository.
+2. Open Google Chrome and navigate to `chrome://extensions/`
+3. In the top-right corner, toggle **Developer mode** to ON.
+4. In the top-left corner, click **Load unpacked** (Загрузить распакованное расширение).
+5. Select this project folder.
 
 ### Project Structure
 * `manifest.json` — Extension configuration file (Manifest V3).
@@ -42,10 +42,10 @@ Chrome-расширение (Manifest V3) для точной регулиров
 * **Премиальный дизайн:** Современный темный интерфейс с эффектом стеклянного размытия (glassmorphism) и анимациями.
 
 ### Установка (Локально)
-1. Скачайте этот репозиторий на свой компьютер.
+1. Скачайте или клонируйте данный репозиторий.
 2. Откройте Google Chrome и перейдите на страницу расширений: `chrome://extensions/`
-3. Включите переключатель **Режим разработчика** (Developer mode) в правом верхнем углу.
-4. Нажмите кнопку **Загрузить распакованное расширение** (Load unpacked) в левом верхнем углу.
+3. В правом верхнем углу включите переключатель **«Режим разработчика»** (Developer mode).
+4. В левом верхнем углу нажмите кнопку **«Загрузить распакованное расширение»** (Load unpacked).
 5. Выберите папку с проектом.
 
 ### Структура проекта
